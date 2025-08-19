@@ -1,0 +1,59 @@
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+import { LogoComponent } from '../shared/logo/logo';
+import { MatButtonModule } from '@angular/material/button';
+import { AbstractControl, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormValidationError } from '../shared/util/form.errors';
+import { RouterLink } from '@angular/router';
+
+
+@Component({
+  selector: 'app-login',
+  imports: [
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+    MatCardModule,
+    LogoComponent,
+    MatButtonModule,
+    ReactiveFormsModule,
+    RouterLink
+],
+  templateUrl: './login.html',
+  styleUrl: './login.css',
+})
+export class LoginComponent implements OnInit {
+  LOGIN_FORM_PROPS = {
+    EMAIL: 'email',
+    PASSWORD: 'password',
+  };
+
+  hide = signal(true);
+
+  loginForm!: FormGroup;
+
+  // dependency injection
+  #formBuilder = inject(FormBuilder);
+
+  ngOnInit(): void {
+    this.loginForm = this.#formBuilder.group({
+      email: new FormControl('', [Validators.required, Validators.email]),
+      password: new FormControl('', [
+        Validators.required,
+        Validators.minLength(6),
+      ]),
+    });
+  }
+
+  clickEvent(event: MouseEvent) {
+    event.preventDefault();
+    this.hide.set(!this.hide());
+  }
+
+  getError(ctrl: AbstractControl, name: string): string {
+    return FormValidationError.getFormControlErrorMessage(ctrl, name);
+  }
+}
