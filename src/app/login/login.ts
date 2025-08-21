@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormValidationError } from '../shared/util/form.errors';
 import { RouterLink } from '@angular/router';
+import { AuthService } from '../services/auth';
 
 
 @Component({
@@ -37,6 +38,7 @@ export class LoginComponent implements OnInit {
 
   // dependency injection
   #formBuilder = inject(FormBuilder);
+  #authService = inject(AuthService)
 
   ngOnInit(): void {
     this.loginForm = this.#formBuilder.group({
@@ -56,4 +58,9 @@ export class LoginComponent implements OnInit {
   getError(ctrl: AbstractControl, name: string): string {
     return FormValidationError.getFormControlErrorMessage(ctrl, name);
   }
+
+  login(){
+    this.#authService.signInWithEmailAndPassword(this.loginForm.value)
+  }
+
 }

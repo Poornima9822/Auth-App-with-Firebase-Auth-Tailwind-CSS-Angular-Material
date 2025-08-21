@@ -1,1 +1,5 @@
 <p>home works!</p>
+
+@if( user$ | async){
+    <button mat-stroked-button (click)="logOut()">Logout</button>
+}

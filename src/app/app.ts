@@ -9,7 +9,7 @@ import { LoginComponent } from './login/login';
   imports: [
     MatButtonModule,
     MatProgressSpinnerModule,
-    LoginComponent,
+    // LoginComponent,
     RouterOutlet
 
   ],
