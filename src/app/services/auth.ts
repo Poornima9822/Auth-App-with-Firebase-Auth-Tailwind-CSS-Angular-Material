@@ -6,6 +6,7 @@ import {
   signOut,
   User,
   signInWithEmailAndPassword,
+  sendPasswordResetEmail,
 } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
@@ -84,6 +85,17 @@ export class AuthService {
     } catch (error) {
       this.#showAlert('Error logging in: ' + error);
       // throw new Error('Error logging in: ' + error);
+    }
+  }
+
+  async sendPasswordResetEmail(email: string){
+    try {
+      await sendPasswordResetEmail(this.#auth, email);
+      this.#showAlert("Password reset email sent");
+      this.#redirect('/')
+    } catch (error) {
+      this.#showAlert('Error sending password reset email: ' +error );
+      throw new Error('Error sending password reset email: ' + error);
     }
   }
 }

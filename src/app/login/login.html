@@ -38,10 +38,17 @@
 
       <div class="mb-4 flex flex-row justify-between">
         <button type="button" mat-button [routerLink]="'register'">Register</button>
-        <button type="button" mat-button>Forgot password?</button>
+        <button type="button" mat-button [routerLink]="'forgot-password'">Forgot password?</button>
       </div>
 
-      <button matButton="filled">Login</button>
+      <button [disabled]="loginForm.invalid" mat-flat-button>
+
+        @if(isLoading()){
+          <mat-spinner diameter="30"></mat-spinner>
+        }@else{
+          Login
+        }
+      </button>
     </form>
   </mat-card>
 </div>

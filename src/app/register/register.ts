@@ -16,6 +16,7 @@ import {
 import { FormValidationError } from '../shared/util/form.errors';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../services/auth';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 
 @Component({
@@ -28,32 +29,37 @@ import { AuthService } from '../services/auth';
     LogoComponent,
     MatButtonModule,
     ReactiveFormsModule,
-    RouterLink
-],
+    RouterLink,
+    MatProgressSpinnerModule,
+  ],
   templateUrl: './register.html',
   styleUrl: './register.css',
 })
 export class RegisterComponent implements OnInit {
   REGISTER_FORM_PROPS = {
     EMAIL: 'email',
-    USER_NAME : 'username',
+    USER_NAME: 'username',
     PASSWORD: 'password',
   };
 
-  
   hide = signal(true);
-  
+  isLoading = signal(false);
+
   registerForm!: FormGroup;
-  
+
   // dependency injection
   #formBuilder = inject(FormBuilder);
   #authService = inject(AuthService);
-  
+
   ngOnInit(): void {
     this.registerForm = this.#formBuilder.group({
       email: new FormControl('', [Validators.required, Validators.email]),
       // can be use like this also
-      [this.REGISTER_FORM_PROPS.USER_NAME] : new FormControl('', [Validators.required, Validators.maxLength(20), Validators.minLength(3)]),
+      [this.REGISTER_FORM_PROPS.USER_NAME]: new FormControl('', [
+        Validators.required,
+        Validators.maxLength(20),
+        Validators.minLength(3),
+      ]),
       password: new FormControl('', [
         Validators.required,
         Validators.minLength(6),
@@ -70,13 +76,17 @@ export class RegisterComponent implements OnInit {
     return FormValidationError.getFormControlErrorMessage(ctrl, name);
   }
 
-  async register(){
+  async register() {
     try {
+      this.isLoading.set(true);
+      this.registerForm.disable();
       await this.#authService.createUserWithEmailAndPassword(
-      this.registerForm.value,
-    );
+        this.registerForm.value,
+      );
     } catch (error) {
-      
+    } finally {
+      this.isLoading.set(false);
+      this.registerForm.enable();
     }
   }
 }

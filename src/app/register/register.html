@@ -45,7 +45,13 @@
 
       </mat-form-field>
       <button type="button" class="mb-4" mat-button [routerLink]="'/'">Already have an account?</button>
-      <button matButton="filled">Register</button>
+      <button mat-flat-button [disabled]="registerForm.invalid">
+        @if(isLoading()){
+            <mat-spinner diameter="30"></mat-spinner>
+        }@else {
+            Register
+        }
+      </button>
     </form>
   </mat-card>
 </div>
