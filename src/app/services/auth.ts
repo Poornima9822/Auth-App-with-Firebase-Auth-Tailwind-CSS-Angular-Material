@@ -9,6 +9,9 @@ import {
   sendPasswordResetEmail,
   updateProfile,
   sendEmailVerification,
+  GoogleAuthProvider,
+  signInWithPopup,
+  getAdditionalUserInfo,
 } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
@@ -74,6 +77,22 @@ export class AuthService {
     }
   }
 
+  async signInWithGoogle(){
+    try {
+      const provider = new GoogleAuthProvider();
+      const user = await signInWithPopup(this.#auth, provider)
+      const profile = getAdditionalUserInfo(user)
+      if(profile?.isNewUser){
+        await this.#saveUser(user.user, profile.profile)
+        this.#showAlert('User created successfully')
+      }
+      this.#redirect('/home')
+    } catch (error) {
+      this.#showAlert('Error signing with Google'+ error)
+      throw new Error('Error signing with Google' + error);
+    }
+  }
+
   #showAlert(message: string) {
     this.#snackBar.open(message, 'Close', {
       duration: 3000,
@@ -86,12 +105,14 @@ export class AuthService {
     this.#router.navigate([path]);
   }
 
-  async #saveUser(user: User) {
-    const { email, uid, displayName } = user;
+  async #saveUser(user: User, profile?: Record<string ,unknown> | null) {
+    const { email, uid, displayName, photoURL } = user;
     const userData = {
       email,
       displayName,
       uid,
+      photoURL,
+      ...profile,
     };
     const collectionRef = collection(this.#firestore, 'users');
     await setDoc(doc(collectionRef, user.uid), userData);

@@ -69,4 +69,19 @@ export class LoginComponent implements OnInit {
     this.isLoading.set(false);
     this.loginForm.enable();
   }
+
+  async loginWithGoogle(){
+    try {
+      this.isLoading.set(true);
+      this.loginForm.disable();
+      await this.#authService.signInWithGoogle();
+    } catch (error) {
+      console.error('Error during google login' +error);
+      
+    }
+    finally{
+      this.isLoading.set(false);
+      this.loginForm.enable();
+    }
+  }
 }

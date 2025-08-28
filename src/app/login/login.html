@@ -49,6 +49,18 @@
           Login
         }
       </button>
+
+      <div class="mb-4 flex flex-row justify-between">
+      
+        <button type="button" mat-button (click)="loginWithGoogle()">
+          @if(isLoading()){
+          <mat-spinner diameter="30"></mat-spinner>
+          }@else{
+          Login with Google
+          }
+        </button>
+
+      </div>
     </form>
   </mat-card>
 </div>
