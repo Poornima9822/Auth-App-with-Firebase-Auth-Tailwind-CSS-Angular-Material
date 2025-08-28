@@ -7,6 +7,8 @@ import {
   User,
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
+  updateProfile,
+  sendEmailVerification,
 } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
@@ -36,12 +38,39 @@ export class AuthService {
         iUser.email,
         iUser.password,
       );
-      this.#saveUser(registeredUser.user, iUser.username!);
-      this.#redirect('/home');
+      // this.#saveUser(registeredUser.user, iUser.username!);
+      // this.#redirect('/home');
+      this.#updateUserProfile(registeredUser.user, {
+        displayName: iUser.username,
+      });
+      this.#showAlert('Please verify your email address '+registeredUser.user.email)
+      this.#sendEmailVerification(registeredUser.user)
+      await signOut(this.#auth)
+
       return registeredUser;
     } catch (error) {
       this.#showAlert('Error creating user: ' + error);
       throw new Error('Error creating user: ' + error);
+    }
+  }
+
+  async #updateUserProfile(user: User, partialUser : Partial<User>){
+    try {
+      await updateProfile(user, partialUser)
+    } catch (error) {
+        this.#showAlert('Error updating user profile: ' + error);
+        throw new Error('Error updating user profile ' + error);
+    }
+  }
+
+  // to send verification email
+  async #sendEmailVerification(user : User){
+    try {
+      await sendEmailVerification(user);
+      this.#showAlert('Email verification sent')
+    } catch (error) {
+      this.#showAlert('Error sending email verification: ' + error);
+      throw new Error('Error sending email verification' + error);
     }
   }
 
@@ -57,11 +86,11 @@ export class AuthService {
     this.#router.navigate([path]);
   }
 
-  async #saveUser(user: User, username: string) {
-    const { email, uid } = user;
+  async #saveUser(user: User) {
+    const { email, uid, displayName } = user;
     const userData = {
       email,
-      username,
+      displayName,
       uid,
     };
     const collectionRef = collection(this.#firestore, 'users');
@@ -81,6 +110,12 @@ export class AuthService {
         iUser.email,
         iUser.password,
       );
+      if (!loggedUser.user.emailVerified) {
+        this.#showAlert('Please verify your email address');
+        await signOut(this.#auth);
+        return;
+      }
+      this.#saveUser(loggedUser.user);
       this.#redirect('/home');
     } catch (error) {
       this.#showAlert('Error logging in: ' + error);
